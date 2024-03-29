@@ -41,6 +41,8 @@ class TechChallengeAPI:
 
     def file_download_controller(self, url, folder, filename):
         directory = os.path.join(self.basedir, folder, filename)
+
+        shutil.rmtree(directory)
         final_filename = f"{filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
         if self.download_file(url, directory, final_filename):
             return {"source": filename, "url": url, "message": "updated", "ret_code": 0}
@@ -51,7 +53,7 @@ class TechChallengeAPI:
         self.conn.execute(f"""
             CREATE VIEW tb_{table} AS 
             SELECT *
-            FROM read_csv_auto('{self.basedir}/data/{table}/*')
+            FROM read_csv_auto('{self.basedir}/data/{table}/*', header=true)
         """)          
 
     def initialize_db(self):
@@ -65,7 +67,46 @@ class TechChallengeAPI:
         ]
 
         for table in table_list:
-            self.create_view(table)      
+            self.create_view(table)    
+
+        self.conn.execute(f"""
+            SET old_implicit_casting = true;
+            CREATE VIEW tb_exportacao_unp AS (
+                UNPIVOT tb_exportacao
+                ON COLUMNS(* EXCLUDE (Id, País))
+                INTO
+                    NAME ano
+                    VALUE valor
+            )                
+        """)
+        self.conn.execute(f"""
+            CREATE VIEW tb_importacao_unp AS (
+                UNPIVOT tb_importacao
+                ON COLUMNS(* EXCLUDE (Id, País))
+                INTO
+                    NAME ano
+                    VALUE valor
+            )                
+        """)        
+        self.conn.execute(f"""
+            
+            CREATE VIEW tb_processamento_unp AS (
+                UNPIVOT tb_processamento
+                ON COLUMNS(* EXCLUDE (id, control, cultivar))
+                INTO
+                    NAME ano
+                    VALUE valor
+            );              
+        """)
+        self.conn.execute(f"""
+            CREATE VIEW tb_producao_unp AS (
+                UNPIVOT tb_producao
+                ON COLUMNS(* EXCLUDE (id, produto))
+                INTO
+                    NAME ano
+                    VALUE valor
+            )                
+        """)                                  
 
     def update_data(self):
         response = []
