@@ -1,117 +1,124 @@
-"""
-Tech Challenge 001 - FIAP - ML Engineering 2024
-
-This webservice runs an API service that retrieves data from 
-http://vitibrasil.cnpuv.embrapa.br/ and store it in disk to be queried by Duckdb
-
-"""
-
 import argparse
 import logging
-import sys
 import uvicorn
 import requests
 import os
 import shutil
-import asyncio
-
-from fastapi import FastAPI
 from datetime import datetime
+import duckdb
+from fastapi import FastAPI
 
-
+# Assuming tech_challenge_001 contains necessary version information
 from tech_challenge_001 import __version__
 
 __author__ = "Ivan Falcao"
 __copyright__ = "Ivan Falcao"
 __license__ = "MIT"
-basedir = ""
-logger = logging.getLogger("uvicorn")
 
 app = FastAPI()
+logger = logging.getLogger("uvicorn")
 
-def download_file(url, directory, filename):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+class TechChallengeAPI:
+    def __init__(self, basedir):
+        self.basedir = basedir
+        self.conn = duckdb.connect(database=':memory:')
+        self.initialize_db()
 
-    filepath = os.path.join(directory, filename) 
+    def download_file(self, url, directory, filename):
+        if not os.path.exists(directory):
+            os.makedirs(directory)
 
-    response = requests.get(url)
-    if response.status_code == 200:
-        with open(filepath, 'wb') as file:
-            file.write(response.content)
-        logger.info(f"File {url} downloaded successfully as '{filepath}'")
+        filepath = os.path.join(directory, filename)
+        response = requests.get(url)
+        if response.status_code == 200:
+            with open(filepath, 'wb') as file:
+                file.write(response.content)
+            logger.info(f"File {url} downloaded successfully as '{filepath}'")
+            return True
+        else:
+            logger.info("Failed to download file")
+            return False
 
-        return True
-    else:
-        logger.info("Failed to download file")
-        return False
+    def file_download_controller(self, url, folder, filename):
+        directory = os.path.join(self.basedir, folder, filename)
+        final_filename = f"{filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
+        if self.download_file(url, directory, final_filename):
+            return {"source": filename, "url": url, "message": "updated", "ret_code": 0}
+        else:
+            return {"source": filename, "url": url, "message": "not updated", "ret_code": 1}
 
-def file_download_controller(url, basedir, folder, filename):
-    directory = os.path.join(basedir, folder, filename)
-    try:
-        logger.info(f"Removing dir: '{directory}/'")
-        shutil.rmtree(directory)
-    except Exception as e:
-        logger.warn(e)
+    def create_view(self, table):
+        self.conn.execute(f"""
+            CREATE VIEW tb_{table} AS 
+            SELECT *
+            FROM read_csv_auto('{self.basedir}/data/{table}/*')
+        """)          
 
-    if (download_file(url, directory ,f"{filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv")):
-        return {"source": f"{filename}", "url": url, "message": f"updated", "ret_code": 0}
-    else:
-        return {"source": f"{filename}", "url": url, "message": f"not updated", "ret_code": 1}
-    
-    
-@app.get("/update_producao")
-async def update_producao():
-    url = "http://vitibrasil.cnpuv.embrapa.br/download/Producao.csv"
-    return file_download_controller(url, basedir, "data", "producao")
+    def initialize_db(self):
+        self.update_data()
+        table_list = [
+            'comercio'
+            ,'exportacao'
+            ,'importacao'
+            ,'processamento'
+            ,'producao'
+        ]
 
+        for table in table_list:
+            self.create_view(table)      
 
-@app.get("/update_processamento")
-async def update_processamento():
-    url = "http://vitibrasil.cnpuv.embrapa.br/download/ProcessaViniferas.csv"
-    return file_download_controller(url, basedir, "data", "processamento")
+    def update_data(self):
+        response = []
+        response.append(self.update_producao())
+        response.append(self.update_processamento())
+        response.append(self.update_comercio())
+        response.append(self.update_importacao())
+        response.append(self.update_exportacao())
+        return response
 
-@app.get("/update_comercio")
-async def update_comercio():
-    url = "http://vitibrasil.cnpuv.embrapa.br/download/Comercio.csv"
-    return file_download_controller(url, basedir, "data", "comercio")
+    def update_producao(self):
+        url = "http://vitibrasil.cnpuv.embrapa.br/download/Producao.csv"
+        return self.file_download_controller(url, "data", "producao")
 
+    def update_processamento(self):
+        url = "http://vitibrasil.cnpuv.embrapa.br/download/ProcessaViniferas.csv"
+        return self.file_download_controller(url, "data", "processamento")
 
-@app.get("/update_importacao")
-async def update_importacao():
-    url = "http://vitibrasil.cnpuv.embrapa.br/download/ImpVinhos.csv"
-    return file_download_controller(url, basedir, "data", "importacao")    
+    def update_comercio(self):
+        url = "http://vitibrasil.cnpuv.embrapa.br/download/Comercio.csv"
+        return self.file_download_controller(url, "data", "comercio")
 
-@app.get("/update_exportacao")
-async def update_exportacao():
-    url = "http://vitibrasil.cnpuv.embrapa.br/download/ExpVinho.csv"
-    return file_download_controller(url, basedir, "data", "exportacao")       
+    def update_importacao(self):
+        url = "http://vitibrasil.cnpuv.embrapa.br/download/ImpVinhos.csv"
+        return self.file_download_controller(url, "data", "importacao")
 
-    
-@app.get("/update_data")
-async def update_data():
-    resp_list = []
-    results = []
-    resp_list.append(update_producao())
-    resp_list.append(update_processamento())
-    resp_list.append(update_comercio())
-    resp_list.append(update_importacao())
-    resp_list.append(update_exportacao())
+    def update_exportacao(self):
+        url = "http://vitibrasil.cnpuv.embrapa.br/download/ExpVinho.csv"
+        return self.file_download_controller(url, "data", "exportacao")
 
-    results.extend(await asyncio.gather(*resp_list))
+    def query(self, query_str):
+        out_df = self.conn.execute(query_str).pl().to_dicts()
+        return out_df
 
-    return results
-
+# FastAPI endpoint definitions
 @app.get("/")
 async def root():
-    return {"message": f"Hello World {basedir}"}
+    return {"message": "Tech Challenge API Service"}
 
+@app.get("/update_data")
+def update_data():
+    return api.update_data()
+
+@app.get("/query")
+async def query_endpoint(query: str):
+    result = api.query(query)
+    return {"result": result}
+
+# Main execution
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--basedir')
+    parser.add_argument('--basedir', default='')
     args = parser.parse_args()
 
-    basedir = args.basedir
-    
-    #run server
+    api = TechChallengeAPI(basedir=args.basedir)
     uvicorn.run(app)
