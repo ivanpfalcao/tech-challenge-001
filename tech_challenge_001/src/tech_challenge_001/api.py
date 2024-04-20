@@ -191,8 +191,28 @@ async def query_endpoint(query: str):
     return {"result": result}
 
 @app.get("/producao")
-async def get_producao_data(id: int):
-    result = api.query_producao(id=id)
+async def get_producao_data(
+        id: int | None  = None
+        , control: str | None  = None
+        , cultivar: str | None  = None
+        , ano: str | None  = None
+    ):
+
+    params = {}
+
+    if id is not None:
+        params['id'] = id
+
+    if control is not None:
+        params['control'] = control
+
+    if cultivar is not None:
+        params['cultivar'] = cultivar
+
+    if ano is not None:
+        params['ano'] = ano
+
+    result = api.query_producao(**params)
     return {"result": result}
 
 # Main execution
