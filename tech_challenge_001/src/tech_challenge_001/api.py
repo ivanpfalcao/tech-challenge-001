@@ -7,6 +7,7 @@ import shutil
 from datetime import datetime
 import duckdb
 from fastapi import FastAPI
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 # Assuming tech_challenge_001 contains necessary version information
 from tech_challenge_001 import __version__
@@ -15,11 +16,9 @@ __author__ = "Ivan Falcao"
 __copyright__ = "Ivan Falcao"
 __license__ = "MIT"
 
-app = FastAPI()
-logger = logging.getLogger("uvicorn")
-
 class TechChallengeAPI:
-    def __init__(self, basedir):
+    def __init__(self, basedir, logger):
+        self.logger = logger
         self.basedir = basedir
         self.conn = duckdb.connect(database=':memory:')
         self.initialize_db()
@@ -33,10 +32,10 @@ class TechChallengeAPI:
         if response.status_code == 200:
             with open(filepath, 'wb') as file:
                 file.write(response.content)
-            logger.info(f"File {url} downloaded successfully as '{filepath}'")
+            self.logger.info(f"File {url} downloaded successfully as '{filepath}'")
             return True
         else:
-            logger.info("Failed to download file")
+            self.logger.error(f"Failed to download file. Status Code: {response.status_code}")
             return False
 
     def file_download_controller(self, url, folder, filename):
@@ -141,6 +140,42 @@ class TechChallengeAPI:
         out_df = self.conn.execute(query_str).pl().to_dicts()
         return out_df
 
+    def build_select_query(self, table_name, **kwargs):
+        """
+        Builds a SELECT * query with optional WHERE clauses from table name and kwargs.
+
+        Args:
+            table_name (str): Name of the table to query.
+            **kwargs: Keyword arguments representing conditions for WHERE clause.
+                - Keys are column names.
+                - Values are the comparison values.
+
+        Returns:
+            str: The constructed SELECT * query with optional WHERE clause.
+        """
+
+        query = f"SELECT * FROM {table_name}"
+        where_clauses = []
+        where_values = []
+
+        for col, value in kwargs.items():
+            where_clauses.append(f"{col} = ?")
+            where_values.append(value)
+
+        if where_clauses:
+            query += " WHERE " + " AND ".join(where_clauses)
+
+        logging.info(f"Executing query: {query}")
+        out_dict = self.conn.execute(query, where_values).pl().to_dicts()
+        return out_dict
+    
+    def query_producao(self, **kwargs):
+        return self.build_select_query('tb_processamento_unp', **kwargs) 
+
+
+app = FastAPI()
+logger = logging.getLogger("uvicorn")
+
 # FastAPI endpoint definitions
 @app.get("/")
 async def root():
@@ -155,11 +190,16 @@ async def query_endpoint(query: str):
     result = api.query(query)
     return {"result": result}
 
+@app.get("/producao")
+async def get_producao_data(id: int):
+    result = api.query_producao(id=id)
+    return {"result": result}
+
 # Main execution
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--basedir', default='')
     args = parser.parse_args()
 
-    api = TechChallengeAPI(basedir=args.basedir)
+    api = TechChallengeAPI(basedir=args.basedir, logger=logger)
     uvicorn.run(app)
