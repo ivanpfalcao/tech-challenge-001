@@ -1,11 +1,6 @@
 import argparse
 import logging
 import uvicorn
-import requests
-import os
-import shutil
-from datetime import datetime
-import duckdb
 from fastapi import FastAPI
 
 from tech_challenge_001 import __version__
@@ -156,4 +151,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     query_engine = TechChallengeQueryEngine(basedir=args.basedir, logger=logger)
-    uvicorn.run(app)
+    uvicorn.run(app, port=8000, host='0.0.0.0')
