@@ -159,4 +159,13 @@ class TechChallengeQueryEngine:
         return out_dict
     
     def query_producao(self, **kwargs):
-        return self.build_select_query('tb_processamento_unp', **kwargs) 
+        return self.build_select_query('tb_processamento_unp', **kwargs)
+    
+    def query_exportacao(self, **kwargs):
+        return self.build_select_query('tb_exportacao_unp', **kwargs)
+
+    def query_importacao(self, **kwargs):
+        return self.build_select_query('tb_importacao_unp', **kwargs)
+    
+    def query_processamento(self, **kwargs):
+        return self.build_select_query('tb_processamento_unp', **kwargs)    
