@@ -25,6 +25,7 @@ spec:
       labels:
         app: tech-challenge-001
     spec:
+      terminationGracePeriodSeconds: 2
       containers:
       - name: tech-challenge-001
         image: ivanpfalcao/tech-challenge-001:1.0.0

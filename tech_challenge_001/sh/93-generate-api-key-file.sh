@@ -9,7 +9,9 @@ mkdir -p "${FILE_PATH}"
 echo "gfsdgfdhghd" > ${FILE_NAME}
 echo "hgdfhgfdjhf" >> ${FILE_NAME}
 
+kubectl -n ${NAMESPACE} delete secret api-keys-secret
+
 # Create the Kubernetes secret
-kubectl create secret generic api-keys-secret \
+kubectl -n ${NAMESPACE} create secret generic api-keys-secret \
     --from-file="${FILE_NAME}" \
     --namespace="${NAMESPACE}"
