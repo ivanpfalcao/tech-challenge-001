@@ -180,6 +180,34 @@ async def get_processamento_data(
     result = query_engine.query_processamento(**params)
     return {"result": result}
 
+@app.get("/comercio", dependencies=[Depends(api_key_auth)], description="""
+Fetches grape processing data with granular filtering capabilities.  Key filtering options:
+
+* **id:**  Unique identifier of a processing record.
+* **produto:** Description of the product
+* **detalhe_produto:** Product details
+* **ano:** Processing year. 
+""")
+async def get_comercio_data(
+        id: int | None  = None
+        , produto: str | None  = None
+        , detalhe_produto: str | None  = None
+    ):
+
+    params = {}
+
+    if id is not None:
+        params['id'] = id
+
+    if produto is not None:
+        params['produto'] = produto
+
+    if detalhe_produto is not None:
+        params['detalhe_produto'] = detalhe_produto
+
+    result = query_engine.query_comercio(**params)
+    return {"result": result}
+
 # Main execution
 if __name__ == "__main__":
     query_engine = TechChallengeQueryEngine(basedir=args.basedir, logger=logger)

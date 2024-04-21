@@ -1,6 +1,8 @@
 URL="http://127.0.0.1:8000"
 AUTH_TOKEN="gfsdgfdhghd"
-URL_PATH="producao?id=2"
+
+#URL_PATH="producao?id=2"
+URL_PATH="comercio?id=1"
 
 time curl -X 'GET' \
   "${URL}/${URL_PATH}" \

@@ -43,13 +43,75 @@ class TechChallengeQueryEngine:
             CREATE VIEW tb_{table} AS 
             SELECT *
             FROM read_csv_auto('{self.basedir}/data/{table}/*', header=true)
-        """)          
+        """)
+
+    def create_comercio_view(self):
+        self.conn.execute(f"""
+            CREATE VIEW tb_comercio AS 
+            SELECT 
+                column00 AS id,
+                column01 AS produto,
+                column02 AS detalhe_produto,
+                column03 AS "1970",
+                column04 AS "1971",
+                column05 AS "1972",
+                column06 AS "1973",
+                column07 AS "1974",
+                column08 AS "1975",
+                column09 AS "1976",
+                column10 AS "1977",
+                column11 AS "1978",
+                column12 AS "1979",
+                column13 AS "1980",
+                column14 AS "1981",
+                column15 AS "1982",
+                column16 AS "1983",
+                column17 AS "1984",
+                column18 AS "1985",
+                column19 AS "1986",
+                column20 AS "1987",
+                column21 AS "1988",
+                column22 AS "1989",
+                column23 AS "1990",
+                column24 AS "1991",
+                column25 AS "1992",
+                column26 AS "1993",
+                column27 AS "1994",
+                column28 AS "1995",
+                column29 AS "1996",
+                column30 AS "1997",
+                column31 AS "1998",
+                column32 AS "1999",
+                column33 AS "2000",
+                column34 AS "2001",
+                column35 AS "2002",
+                column36 AS "2003",
+                column37 AS "2004",
+                column38 AS "2005",
+                column39 AS "2006",
+                column40 AS "2007",
+                column41 AS "2008",
+                column42 AS "2009",
+                column43 AS "2010",
+                column44 AS "2011",
+                column45 AS "2012",
+                column46 AS "2013",
+                column47 AS "2014",
+                column48 AS "2015",
+                column49 AS "2016",
+                column50 AS "2017",
+                column51 AS "2018",
+                column52 AS "2019",
+                column53 AS "2020",
+                column54 AS "2021",
+                column55 AS "2022"
+            FROM read_csv_auto('{self.basedir}/data/comercio/*', header=false)
+        """)           
 
     def initialize_db(self):
         self.update_data()
         table_list = [
-            'comercio'
-            ,'exportacao'
+            'exportacao'
             ,'importacao'
             ,'processamento'
             ,'producao'
@@ -58,6 +120,7 @@ class TechChallengeQueryEngine:
         for table in table_list:
             self.create_view(table)    
 
+        self.create_comercio_view()
         self.conn.execute(f"""
             SET old_implicit_casting = true;
             CREATE VIEW tb_exportacao_unp AS (
@@ -95,7 +158,17 @@ class TechChallengeQueryEngine:
                     NAME ano
                     VALUE valor
             )                
-        """)                                  
+        """)
+
+        self.conn.execute(f"""
+            CREATE VIEW tb_comercio_unp AS (
+                UNPIVOT tb_comercio
+                ON COLUMNS(* EXCLUDE (id, produto, detalhe_produto))
+                INTO
+                    NAME ano
+                    VALUE valor
+            )                
+        """)                                               
 
     def update_data(self):
         response = []
@@ -169,4 +242,7 @@ class TechChallengeQueryEngine:
         return self.build_select_query('tb_importacao_unp', **kwargs)
     
     def query_processamento(self, **kwargs):
-        return self.build_select_query('tb_processamento_unp', **kwargs)    
+        return self.build_select_query('tb_processamento_unp', **kwargs)
+    
+    def query_comercio(self, **kwargs):
+        return self.build_select_query('tb_comercio_unp', **kwargs)    
