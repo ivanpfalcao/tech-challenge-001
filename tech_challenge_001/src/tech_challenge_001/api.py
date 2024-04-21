@@ -1,6 +1,7 @@
 import argparse
 import logging
 import uvicorn
+import os
 from fastapi import FastAPI, Body, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
@@ -11,10 +12,15 @@ __author__ = "Ivan Falcao"
 __copyright__ = "Ivan Falcao"
 __license__ = "MIT"
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--basedir', default='')
+args = parser.parse_args()
 
-api_keys = [
-    "akljnv13bvi2vfo0b0bw"
-]
+api_keys_path = os.path.join(args.basedir, 'keys', 'api_keys_list.txt')
+
+print(f'API Keys Path: {api_keys_path}')
+api_keys = open(api_keys_path, 'r').read().split('\n')
+print(api_keys)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -161,9 +167,5 @@ async def get_processamento_data(
 
 # Main execution
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--basedir', default='')
-    args = parser.parse_args()
-
     query_engine = TechChallengeQueryEngine(basedir=args.basedir, logger=logger)
     uvicorn.run(app, port=8000, host='0.0.0.0')
