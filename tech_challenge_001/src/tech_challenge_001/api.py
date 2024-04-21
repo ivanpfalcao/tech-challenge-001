@@ -1,7 +1,8 @@
 import argparse
 import logging
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Body, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 
 from tech_challenge_001 import __version__
 from tech_challenge_001.query_engine import TechChallengeQueryEngine
@@ -10,6 +11,20 @@ __author__ = "Ivan Falcao"
 __copyright__ = "Ivan Falcao"
 __license__ = "MIT"
 
+
+api_keys = [
+    "akljnv13bvi2vfo0b0bw"
+]
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+def api_key_auth(api_key: str = Depends(oauth2_scheme)):
+    if api_key not in api_keys:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Forbidden"
+        )
+
 app = FastAPI()
 logger = logging.getLogger("uvicorn")
 
@@ -17,16 +32,16 @@ logger = logging.getLogger("uvicorn")
 async def root():
     return {"message": "Tech Challenge API Service"}
 
-@app.get("/update_data")
+@app.get("/update_data", dependencies=[Depends(api_key_auth)])
 def update_data():
     return query_engine.update_data()
 
-@app.get("/query")
+@app.get("/query", dependencies=[Depends(api_key_auth)])
 async def query_endpoint(query: str):
     result = query_engine.query(query)
     return {"result": result}
 
-@app.get("/producao")
+@app.get("/producao", dependencies=[Depends(api_key_auth)])
 async def get_producao_data(
         id: int | None  = None
         , control: str | None  = None
@@ -51,7 +66,7 @@ async def get_producao_data(
     result = query_engine.query_producao(**params)
     return {"result": result}
 
-@app.get("/exportacao")
+@app.get("/exportacao", dependencies=[Depends(api_key_auth)])
 async def get_exportacao(
         id: int | None  = None
         , pais: str | None  = None
@@ -72,7 +87,7 @@ async def get_exportacao(
     result = query_engine.query_exportacao(**params)
     return {"result": result}
 
-@app.get("/importacao")
+@app.get("/importacao", dependencies=[Depends(api_key_auth)])
 async def get_importacao(
         id: int | None  = None
         , pais: str | None  = None
@@ -93,7 +108,7 @@ async def get_importacao(
     result = query_engine.query_importacao(**params)
     return {"result": result}
 
-@app.get("/producao")
+@app.get("/producao", dependencies=[Depends(api_key_auth)])
 async def get_producao_data(
         id: int | None  = None
         , control: str | None  = None
@@ -119,7 +134,7 @@ async def get_producao_data(
     return {"result": result}
 
 
-@app.get("/processamento")
+@app.get("/processamento", dependencies=[Depends(api_key_auth)])
 async def get_processamento_data(
         id: int | None  = None
         , control: str | None  = None
