@@ -13,8 +13,9 @@ class TechChallengeQueryEngine:
         self.initialize_db()
 
     def download_file(self, url, directory, filename):
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        #if not os.path.exists(directory):
+        self.logger.info(f"Creating data dir: ${directory}")
+        os.makedirs(directory, exist_ok=True)
 
         filepath = os.path.join(directory, filename)
         response = requests.get(url)
@@ -30,7 +31,7 @@ class TechChallengeQueryEngine:
     def file_download_controller(self, url, folder, filename):
         directory = os.path.join(self.basedir, folder, filename)
 
-        shutil.rmtree(directory)
+        shutil.rmtree(directory, ignore_errors=True)
         final_filename = f"{filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
         if self.download_file(url, directory, final_filename):
             return {"source": filename, "url": url, "message": "updated", "ret_code": 0}

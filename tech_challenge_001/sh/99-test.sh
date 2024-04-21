@@ -1,5 +1,5 @@
 URL="http://127.0.0.1:8000"
-AUTH_TOKEN="akljnv13bvi2vfo0b0bw"
+AUTH_TOKEN="gfsdgfdhghd"
 URL_PATH="producao?id=2"
 
 time curl -X 'GET' \

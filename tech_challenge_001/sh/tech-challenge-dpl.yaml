@@ -16,7 +16,7 @@ kind: Deployment
 metadata:
   name: tech-challenge-001
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: tech-challenge-001
@@ -37,3 +37,17 @@ spec:
           limits:
             cpu: 1
             memory: 4Gi
+        volumeMounts:
+        - name: api-keys-volume
+          mountPath: /usr/src/app/tech_challenge_001/sh/keys/
+        - name: shared-data
+          mountPath: /usr/src/app/tech_challenge_001/sh/data          
+      volumes:
+      - name: api-keys-volume
+        secret:
+          secretName: api-keys-secret
+      - name: shared-data
+        hostPath:
+          path: /data/shared-volume
+          type: DirectoryOrCreate
+         

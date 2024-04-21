@@ -4,6 +4,7 @@ import uvicorn
 import os
 from fastapi import FastAPI, Body, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.responses import RedirectResponse
 
 from tech_challenge_001 import __version__
 from tech_challenge_001.query_engine import TechChallengeQueryEngine
@@ -12,15 +13,18 @@ __author__ = "Ivan Falcao"
 __copyright__ = "Ivan Falcao"
 __license__ = "MIT"
 
+app = FastAPI()
+logger = logging.getLogger("uvicorn")
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--basedir', default='')
 args = parser.parse_args()
 
 api_keys_path = os.path.join(args.basedir, 'keys', 'api_keys_list.txt')
 
-print(f'API Keys Path: {api_keys_path}')
+logger.info(f'API Keys Path: {api_keys_path}')
 api_keys = open(api_keys_path, 'r').read().split('\n')
-print(api_keys)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -31,12 +35,10 @@ def api_key_auth(api_key: str = Depends(oauth2_scheme)):
             detail="Forbidden"
         )
 
-app = FastAPI()
-logger = logging.getLogger("uvicorn")
 
 @app.get("/")
 async def root():
-    return {"message": "Tech Challenge API Service"}
+    return RedirectResponse("/docs")
 
 @app.get("/update_data", dependencies=[Depends(api_key_auth)])
 def update_data():

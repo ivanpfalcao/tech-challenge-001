@@ -53,3 +53,4 @@ MANIFEST
 .conda*/
 .python-version
 sh/data/*
+sh/keys/*
