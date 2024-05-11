@@ -3,7 +3,7 @@ import logging
 import uvicorn
 import os
 from fastapi import FastAPI, Body, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import APIKeyHeader
 from fastapi.responses import RedirectResponse
 
 from tech_challenge_001 import __version__
@@ -26,13 +26,13 @@ api_keys_path = os.path.join(args.basedir, 'keys', 'api_keys_list.txt')
 logger.info(f'API Keys Path: {api_keys_path}')
 api_keys = open(api_keys_path, 'r').read().split('\n')
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+api_key_header_auth = APIKeyHeader(name='Authorization', auto_error=False)
 
-def api_key_auth(api_key: str = Depends(oauth2_scheme)):
+def api_key_auth(api_key: str = Depends(api_key_header_auth)):
     if api_key not in api_keys:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Forbidden"
+            detail="Invalid API Key"
         )
 
 

@@ -6,8 +6,11 @@ FILE_PATH="${BASEDIR}/keys"
 FILE_NAME="${FILE_PATH}/api_keys_list.txt"
 
 mkdir -p "${FILE_PATH}"
-echo "gfsdgfdhghd" > ${FILE_NAME}
-echo "hgdfhgfdjhf" >> ${FILE_NAME}
+if [ -n "$1" ]; then
+    echo "${1}" >> "${FILE_NAME}"
+fi
+
+sed -i '/^$/d' "${FILE_NAME}"
 
 kubectl -n ${NAMESPACE} delete secret api-keys-secret
 

@@ -1,5 +1,5 @@
 URL="http://127.0.0.1:8000"
-AUTH_TOKEN="gfsdgfdhghd"
+AUTH_TOKEN="allyourbasesbelongtous"
 
 #URL_PATH="producao?id=2"
 URL_PATH="comercio?id=1"
