@@ -1,8 +1,17 @@
-=================================
+====================================
 API Documentation for Tech Challenge
-=================================
+====================================
 
 Welcome to the Tech Challenge API documentation. This guide provides a comprehensive overview of the installation process, API functionalities, and usage instructions to get you started.
+
+Architecture
+--------------------------------
+
+.. image:: docs/tech-challenge-001.png
+	:alt: Tech Challenge Architecture
+	:align: center
+	:width: 300px
+
 
 Building and Running with Docker
 --------------------------------
