@@ -10,7 +10,7 @@ Architecture
 .. image:: docs/tech-challenge-001.png
 	:alt: Tech Challenge Architecture
 	:align: center
-	:width: 300px
+	:width: 600px
 
 
 Building and Running with Docker
