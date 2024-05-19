@@ -73,7 +73,7 @@ This section details each of the available API functions within the `api.py` fil
 
 		.. code-block:: bash
 
-			curl -i -v http://localhost:8000/update_data
+			curl -i -v -H "Authorization: Bearer YOUR_API_KEY" http://localhost:8000/update_data
 
 3. **Query Endpoint**
 	- **Endpoint**: ``/query``

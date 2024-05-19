@@ -40,7 +40,7 @@ def api_key_auth(api_key: str = Depends(api_key_header_auth)):
 async def root():
     return RedirectResponse("/docs")
 
-@app.get("/update_data", description="""
+@app.get("/update_data", dependencies=[Depends(api_key_auth)], description="""
 Triggers a comprehensive update of all datasets used by the API.  This includes:
 
 * **Production data:**  Downloads the latest production statistics from vitibrasil.
