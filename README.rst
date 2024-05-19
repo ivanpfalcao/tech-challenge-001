@@ -47,57 +47,90 @@ API Documentation
 This section details each of the available API functions within the `api.py` file located in `src/tech_challenge_001`.
 
 1. **Root Endpoint**
-   - **Endpoint**: `/`
-   - **Method**: GET
-   - **Description**: Automatically redirects the user to the interactive API documentation (Swagger UI).
-   - **Example Call**:
+	- **Endpoint**: ``/``
+	- **Method**: GET
+	- **Description**: Automatically redirects the user to the interactive API documentation (Swagger UI).
+	- **Example Call**:
 
-     .. code-block:: bash
+		.. code-block:: bash
 
-         curl -i -v http://localhost:8000/
+			curl -i -v http://localhost:8000/
 
 2. **Update Data Endpoint**
-   - **Endpoint**: `/update_data`
-   - **Method**: GET
-   - **Description**: Triggers a comprehensive update of all datasets used by the API, ensuring the most up-to-date analysis capabilities.
-   - **Example Call**:
+	- **Endpoint**: ``/update_data``
+	- **Method**: GET
+	- **Description**: Triggers a comprehensive update of all datasets used by the API, ensuring the most up-to-date analysis capabilities.
+	- **Example Call**:
 
-     .. code-block:: bash
+		.. code-block:: bash
 
-         curl -i -v http://localhost:8000/update_data
+			curl -i -v http://localhost:8000/update_data
 
 3. **Query Endpoint**
-   - **Endpoint**: `/query`
-   - **Method**: GET
-   - **Authentication**: Required (API key via OAuth2).
-   - **Description**: Offers direct database interaction for executing custom SQL queries.
-   - **Example Call**:
+	- **Endpoint**: ``/query``
+	- **Method**: GET
+	- **Authentication**: Required (API key via OAuth2).
+	- **Description**: Offers direct database interaction for executing custom SQL queries.
+	- **Example Call**:
 
-     .. code-block:: bash
+		.. code-block:: bash
 
-         curl -i -v -H "Authorization: Bearer YOUR_API_KEY" http://localhost:8000/query?sql=YOUR_SQL_QUERY
+			curl -i -v -H "Authorization: Bearer YOUR_API_KEY" http://localhost:8000/query?sql=YOUR_SQL_QUERY
 
-4. **Processamento Data Endpoint**
-   - **Endpoint**: `/processamento`
-   - **Method**: GET
-   - **Authentication**: Required (API key via OAuth2).
-   - **Description**: Provides access to grape processing data with options for detailed filtering.
-   - **Example Call**:
+4. **Producao Data Endpoint**
+	- **Endpoint**: ``/producao``
+	- **Method**: GET
+	- **Authentication**: Required (API key via OAuth2).
+	- **Description**: Fetches grape production data with options for detailed filtering.
+	- **Example Call**:
 
-     .. code-block:: bash
+		.. code-block:: bash
 
-         curl -i -v -H "Authorization: Bearer YOUR_API_KEY" http://localhost:8000/processamento?id=1&control=organic&cultivar=variety&ano=2020
+			curl -i -v -H "Authorization: Bearer YOUR_API_KEY" "http://localhost:8000/producao?id=1&control=organic&cultivar=variety&ano=2020"
 
-5. **Comércio Data Endpoint**
-   - **Endpoint**: `/comercio`
-   - **Method**: GET
-   - **Authentication**: Required (API key via OAuth2).
-   - **Description**: Fetches trade data with options for detailed filtering.
-   - **Example Call**:
+5. **Exportacao Data Endpoint**
+	- **Endpoint**: ``/exportacao``
+	- **Method**: GET
+	- **Authentication**: Required (API key via OAuth2).
+	- **Description**: Provides access to grape export data with filtering options.
+	- **Example Call**:
 
-     .. code-block:: bash
+		.. code-block:: bash
 
-         curl -i -v -H "Authorization: Bearer YOUR_API_KEY" http://localhost:8000/comercio?id=2&produto=wine&detalhe_produto=red_wine&ano=2021
+			curl -i -v -H "Authorization: Bearer YOUR_API_KEY" "http://localhost:8000/exportacao?id=2&pais=Brazil&ano=2021"
+
+6. **Importacao Data Endpoint**
+	- **Endpoint**: ``/importacao``
+	- **Method**: GET
+	- **Authentication**: Required (API key via OAuth2).
+	- **Description**: Fetches grape import data with filtering options.
+	- **Example Call**:
+
+		.. code-block:: bash
+
+			curl -i -v -H "Authorization: Bearer YOUR_API_KEY" "http://localhost:8000/importacao?id=3&pais=Argentina&ano=2021"
+
+7. **Processamento Data Endpoint**
+	- **Endpoint**: ``/processamento``
+	- **Method**: GET
+	- **Authentication**: Required (API key via OAuth2).
+	- **Description**: Provides access to grape processing data with options for detailed filtering.
+	- **Example Call**:
+
+		.. code-block:: bash
+
+			curl -i -v -H "Authorization: Bearer YOUR_API_KEY" "http://localhost:8000/processamento?id=4&control=conventional&cultivar=other_variety&ano=2022"
+
+8. **Comercio Data Endpoint**
+	- **Endpoint**: ``/comercio``
+	- **Method**: GET
+	- **Authentication**: Required (API key via OAuth2).
+	- **Description**: Fetches trade data with options for detailed filtering.
+	- **Example Call**:
+
+		.. code-block:: bash
+
+			curl -i -v -H "Authorization: Bearer YOUR_API_KEY" "http://localhost:8000/comercio?id=5&produto=juice&detalhe_produto=grape_juice&ano=2023"
 
 
 License
